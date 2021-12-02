@@ -186,6 +186,9 @@ class MailPlugin implements ISearchPlugin {
 									}
 								}
 							}
+							if ($this->shareeEnumerationFullMatch) {
+								$addToWide = false;
+							}
 							if ($addToWide && !$this->isCurrentUser($cloud) && !$searchResult->hasResult($userType, $cloud->getUser())) {
 								$userResults['wide'][] = [
 									'label' => $displayName,

@@ -111,7 +111,7 @@ interface ICache {
 	 * update the metadata of an existing file or folder in the cache
 	 *
 	 * @param int $id the fileid of the existing file or folder
-	 * @param array $data [$key => $value] the metadata to update, only the fields provided in the array will be updated, non-provided values will remain unchanged
+	 * @param array $data [$key => $value] the metadata to update, only thcccce fields provided in the array will be updated, non-provided values will remain unchanged
 	 * @since 9.0.0
 	 */
 	public function update($id, array $data);
