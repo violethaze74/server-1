@@ -47,6 +47,7 @@
     "blueimp-md5": "^2.19.0",
     "bootstrap": "^4.6.0",
     "camelcase": "^6.2.1",
+    "circular-dependency-plugin": "^5.2.2",
     "clipboard": "^2.0.8",
     "core-js": "^3.19.1",
     "css-vars-ponyfill": "^2.4.7",
@@ -54,6 +55,7 @@
     "debounce": "^1.2.1",
     "dompurify": "^2.3.3",
     "escape-html": "^1.0.3",
+    "eslint-plugin-es": "^4.1.0",
     "handlebars": "^4.7.7",
     "ical.js": "^1.4.0",
     "icalzone": "^0.0.1",
@@ -69,10 +71,12 @@
     "nextcloud-vue-collections": "^0.9.0",
     "p-limit": "^4.0.0",
     "p-queue": "^7.1.0",
+    "path": "^0.12.7",
     "query-string": "^7.0.1",
     "regenerator-runtime": "^0.13.9",
     "select2": "3.5.1",
     "snap.js": "^2.0.9",
+    "stream-browserify": "^3.0.0",
     "strengthify": "git+https://github.com/MorrisJobke/strengthify.git#0.5.9",
     "underscore": "^1.12.0",
     "url-search-params-polyfill": "^8.1.1",
@@ -90,12 +94,13 @@
     "vuedraggable": "^2.24.3",
     "vuex": "^3.6.2",
     "vuex-router-sync": "^5.0.0",
-    "webdav": "^4.7.0"
+    "webdav": "^4.7.0",
+    "webpack-bundle-analyzer": "^4.5.0"
   },
   "devDependencies": {
     "@nextcloud/babel-config": "^1.0.0",
     "@nextcloud/browserslist-config": "^2.2.0",
-    "@nextcloud/eslint-config": "^4.0.0",
+    "@nextcloud/eslint-config": "^6.1.0",
     "@nextcloud/stylelint-config": "^2.0.1",
     "@testing-library/jest-dom": "^5.15.1",
     "@testing-library/user-event": "^13.5.0",
@@ -117,17 +122,17 @@
     "vue-jest": "^4.0.1",
     "vue-loader": "^15.9.8",
     "vue-template-compiler": "^2.6.14",
-    "webpack": "^4.46.0",
+    "webpack": "^5.64.4",
     "webpack-cli": "^4.9.1",
     "webpack-merge": "^5.8.0"
   },
   "browserslist": [
     "extends @nextcloud/browserslist-config"
   ],
-	"engines": {
-		"node": "^14.0.0",
-		"npm": "^7.0.0"
-	},
+  "engines": {
+    "node": "^14.0.0",
+    "npm": "^7.0.0"
+  },
   "jest": {
     "moduleFileExtensions": [
       "js",

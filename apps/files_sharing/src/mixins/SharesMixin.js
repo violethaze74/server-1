@@ -2,10 +2,15 @@
  * @copyright Copyright (c) 2019 John Molakvoæ <skjnldsv@protonmail.com>
  *
  * @author Christoph Wurst <christoph@winzerhof-wurst.at>
+ *
  * @author Daniel Calviño Sánchez <danxuliu@gmail.com>
+ *
  * @author Gary Kim <gary@garykim.dev>
+ *
  * @author John Molakvoæ <skjnldsv@protonmail.com>
+ *
  * @author Julius Härtl <jus@bitgrid.net>
+ *
  * @author Vincent Petry <vincent@nextcloud.com>
  *
  * @license GNU AGPL version 3 or any later version
@@ -25,7 +30,7 @@
  *
  */
 
-import PQueue from 'p-queue/dist/index'
+import PQueue from 'p-queue'
 import debounce from 'debounce'
 
 import Share from '../models/Share'
@@ -93,7 +98,8 @@ export default {
 
 		/**
 		 * Does the current share have a note
-		 * @returns {boolean}
+		 *
+		 * @return {boolean}
 		 */
 		hasNote: {
 			get() {
@@ -115,7 +121,7 @@ export default {
 		 * https://github.com/nextcloud/nextcloud-vue/pull/146
 		 * TODO: have this in vue-components
 		 *
-		 * @returns {int}
+		 * @return {int}
 		 */
 		firstDay() {
 			return window.firstDay
@@ -149,7 +155,7 @@ export default {
 		 * firing the request
 		 *
 		 * @param {Share} share the share to check
-		 * @returns {Boolean}
+		 * @return {boolean}
 		 */
 		checkShare(share) {
 			if (share.password) {
@@ -193,7 +199,8 @@ export default {
 
 		/**
 		 * Note changed, let's save it to a different key
-		 * @param {String} note the share note
+		 *
+		 * @param {string} note the share note
 		 */
 		onNoteChange(note) {
 			this.$set(this.share, 'newNote', note.trim())
@@ -247,7 +254,7 @@ export default {
 				// share api controller accepts
 				propertyNames.map(p => (properties[p] = this.share[p].toString()))
 
-				this.updateQueue.add(async() => {
+				this.updateQueue.add(async () => {
 					this.saving = true
 					this.errors = {}
 					try {
@@ -276,6 +283,7 @@ export default {
 
 		/**
 		 * Manage sync errors
+		 *
 		 * @param {string} property the errored property, e.g. 'password'
 		 * @param {string} message the error message
 		 */
@@ -327,8 +335,9 @@ export default {
 
 		/**
 		 * Returns which dates are disabled for the datepicker
+		 *
 		 * @param {Date} date date to check
-		 * @returns {boolean}
+		 * @return {boolean}
 		 */
 		disabledDate(date) {
 			const dateMoment = moment(date)
