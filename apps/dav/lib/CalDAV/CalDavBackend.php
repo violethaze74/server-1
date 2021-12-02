@@ -1915,7 +1915,34 @@ class CalDavBackend extends AbstractBackend implements SyncSupport, Subscription
 		}
 
 		$result = $outerQuery->executeQuery();
-		$calendarObjects = $result->fetchAll();
+		$calendarObjects = array_filter($result->fetchAll(), function (array $row) use ($options) {
+			$start = $options['timerange']['start'] ?? null;
+			$end = $options['timerange']['end'] ?? null;
+
+			if ($start === null || !($start instanceof DateTimeInterface) || $end === null || !($end instanceof DateTimeInterface)) {
+				// No filter required
+				return true;
+			}
+
+			return $this->validateFilterForObject($row, [
+				'name' => 'VCALENDAR',
+				'comp-filters' => [
+					[
+						'name' => 'VEVENT',
+						'comp-filters' => [],
+						'prop-filters' => [],
+						'is-not-defined' => false,
+						'time-range' => [
+							'start' => $start,
+							'end' => $end,
+						],
+					],
+				],
+				'prop-filters' => [],
+				'is-not-defined' => false,
+				'time-range' => null,
+			]);
+		});
 		$result->closeCursor();
 
 		return array_map(function ($o) {
