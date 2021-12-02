@@ -238,11 +238,12 @@ class Util {
 	public static function getScripts(): array {
 		// merging first and last data set
 		$mapFunc = function (array $scriptsArray): array {
-			return array_merge(...array_values($scriptsArray));
+			return array_merge($scriptsArray['first'] ?? [], $scriptsArray['last'] ?? []);
 		};
 		$appScripts = array_map($mapFunc, self::$scripts);
+
 		// sort core first
-		$scripts = array_merge(isset($appScripts['core']) ? $appScripts['core'] : [], ...array_values($appScripts));
+		$scripts = array_merge($appScripts['core'] ?? [], ...array_values($appScripts));
 		// remove duplicates
 		return array_unique($scripts);
 	}
@@ -259,6 +260,10 @@ class Util {
 		}
 		if (!empty($application)) {
 			$path = "$application/l10n/$languageCode";
+			// init script entry if empty
+			if (!array_key_exists($application, self::$scripts)) {
+				self::$scripts[$application] = ['first' => [], 'last' => []];
+			}
 		} else {
 			$path = "l10n/$languageCode";
 		}
