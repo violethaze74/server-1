@@ -117,7 +117,7 @@ function print_unescaped($string) {
  * All scripts are forced to be loaded after core since
  * they are coming from a template registration.
  * Please consider moving them into the relevant controller
- * 
+ *
  * @param string $app the appname
  * @param string|string[] $file the filename,
  * if an array is given it will add all scripts
