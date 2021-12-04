@@ -1,3 +1,1427 @@
-/*! For license information please see updatenotification-updatenotification.js.LICENSE.txt */
-(()=>{"use strict";var e,a={45571:(e,a,i)=>{var o=i(20144),s=i(79753),r=i(26533),p=i.n(r),l=i(7811),d=i.n(l),c=i(34741),u=i(2649),h=i.n(u),A=i(64492),v=i(19755);c.VTooltip.options.defaultHtml=!1;const f={name:"UpdateNotification",components:{Multiselect:d(),PopoverMenu:p()},directives:{ClickOutside:h(),tooltip:c.VTooltip},data:()=>({newVersionString:"",lastCheckedDate:"",isUpdateChecked:!1,webUpdaterEnabled:!0,updaterEnabled:!0,versionIsEol:!1,downloadLink:"",isNewVersionAvailable:!1,hasValidSubscription:!1,updateServerURL:"",changelogURL:"",whatsNewData:[],currentChannel:"",channels:[],notifyGroups:"",availableGroups:[],isDefaultUpdateServerURL:!0,enableChangeWatcher:!1,availableAppUpdates:[],missingAppUpdates:[],appStoreFailed:!1,appStoreDisabled:!1,isListFetched:!1,hideMissingUpdates:!1,hideAvailableUpdates:!0,openedWhatsNew:!1,openedUpdateChannelMenu:!1}),_$el:null,_$notifyGroups:null,computed:{newVersionAvailableString(){return t("updatenotification","A new version is available: <strong>{newVersionString}</strong>",{newVersionString:this.newVersionString})},noteDelayedStableString:()=>t("updatenotification","Note that after a new release the update only shows up after the first minor release or later. We roll out new versions spread out over time to our users and sometimes skip a version when issues are found. Learn more about updates and release channels at {link}").replace("{link}",'<a href="https://nextcloud.com/release-channels/">https://nextcloud.com/release-channels/</a>'),lastCheckedOnString(){return t("updatenotification","Checked on {lastCheckedDate}",{lastCheckedDate:this.lastCheckedDate})},statusText(){return this.isListFetched?this.appStoreDisabled?t("updatenotification","Please make sure your config.php does not set <samp>appstoreenabled</samp> to false."):this.appStoreFailed?t("updatenotification","Could not connect to the App Store or no updates have been returned at all. Search manually for updates or make sure your server has access to the internet and can connect to the App Store."):0===this.missingAppUpdates.length?t("updatenotification","<strong>All</strong> apps have a compatible version for this Nextcloud version available",this):n("updatenotification","<strong>%n</strong> app has no compatible version for this Nextcloud version available","<strong>%n</strong> apps have no compatible version for this Nextcloud version available",this.missingAppUpdates.length):t("updatenotification","Checking apps for compatible versions")},whatsNew(){if(0===this.whatsNewData.length)return null;const n=[];for(const t in this.whatsNewData)n[t]={icon:"icon-checkmark",longtext:this.whatsNewData[t]};return this.changelogURL&&n.push({href:this.changelogURL,text:t("updatenotification","View changelog"),icon:"icon-link",target:"_blank",action:""}),n},channelList(){const n=[];return n.push({text:t("updatenotification","Enterprise"),longtext:t("updatenotification","For enterprise use. Provides always the latest patch level, but will not update to the next major release immediately. That update happens once Nextcloud GmbH has done additional hardening and testing for large-scale and mission-critical deployments. This channel is only available to customers and provides the Nextcloud Enterprise package."),icon:"icon-star",active:"enterprise"===this.currentChannel,disabled:!this.hasValidSubscription,action:this.changeReleaseChannelToEnterprise}),n.push({text:t("updatenotification","Stable"),longtext:t("updatenotification","The most recent stable version. It is suited for regular use and will always update to the latest major version."),icon:"icon-checkmark",active:"stable"===this.currentChannel,action:this.changeReleaseChannelToStable}),n.push({text:t("updatenotification","Beta"),longtext:t("updatenotification","A pre-release version only for testing new features, not for production environments."),icon:"icon-category-customization",active:"beta"===this.currentChannel,action:this.changeReleaseChannelToBeta}),this.isNonDefaultChannel&&n.push({text:this.currentChannel,icon:"icon-rename",active:!0}),n},isNonDefaultChannel(){return"enterprise"!==this.currentChannel&&"stable"!==this.currentChannel&&"beta"!==this.currentChannel},localizedChannelName(){switch(this.currentChannel){case"enterprise":return t("updatenotification","Enterprise");case"stable":return t("updatenotification","Stable");case"beta":return t("updatenotification","Beta");default:return this.currentChannel}}},watch:{notifyGroups(n){if(!this.enableChangeWatcher)return;const t=[];A.each(n,(function(n){t.push(n.value)})),OCP.AppConfig.setValue("updatenotification","notify_groups",JSON.stringify(t))},isNewVersionAvailable(){this.isNewVersionAvailable&&v.ajax({url:(0,s.generateOcsUrl)("apps/updatenotification/api/v1/applist/{newVersion}",{newVersion:this.newVersion}),type:"GET",beforeSend(n){n.setRequestHeader("Accept","application/json")},success:function(n){this.availableAppUpdates=n.ocs.data.available,this.missingAppUpdates=n.ocs.data.missing,this.isListFetched=!0,this.appStoreFailed=!1}.bind(this),error:function(n){this.availableAppUpdates=[],this.missingAppUpdates=[],this.appStoreDisabled=n.responseJSON.ocs.data.appstore_disabled,this.isListFetched=!0,this.appStoreFailed=!0}.bind(this)})}},beforeMount(){const n=JSON.parse(v("#updatenotification").attr("data-json"));this.newVersion=n.newVersion,this.newVersionString=n.newVersionString,this.lastCheckedDate=n.lastChecked,this.isUpdateChecked=n.isUpdateChecked,this.webUpdaterEnabled=n.webUpdaterEnabled,this.updaterEnabled=n.updaterEnabled,this.downloadLink=n.downloadLink,this.isNewVersionAvailable=n.isNewVersionAvailable,this.updateServerURL=n.updateServerURL,this.currentChannel=n.currentChannel,this.channels=n.channels,this.notifyGroups=n.notifyGroups,this.isDefaultUpdateServerURL=n.isDefaultUpdateServerURL,this.versionIsEol=n.versionIsEol,this.hasValidSubscription=n.hasValidSubscription,n.changes&&n.changes.changelogURL&&(this.changelogURL=n.changes.changelogURL),n.changes&&n.changes.whatsNew&&(n.changes.whatsNew.admin&&(this.whatsNewData=this.whatsNewData.concat(n.changes.whatsNew.admin)),this.whatsNewData=this.whatsNewData.concat(n.changes.whatsNew.regular))},mounted(){this._$el=v(this.$el),this._$notifyGroups=this._$el.find("#oca_updatenotification_groups_list"),this._$notifyGroups.on("change",function(){this.$emit("input")}.bind(this)),v.ajax({url:(0,s.generateOcsUrl)("cloud/groups"),dataType:"json",success:function(n){const t=[];v.each(n.ocs.data.groups,(function(n,e){t.push({value:e,label:e})})),this.availableGroups=t,this.enableChangeWatcher=!0}.bind(this)})},methods:{clickUpdaterButton(){v.ajax({url:(0,s.generateUrl)("/apps/updatenotification/credentials")}).success((function(n){const t=document.createElement("form");t.setAttribute("method","post"),t.setAttribute("action",(0,s.getRootUrl)()+"/updater/");const e=document.createElement("input");e.setAttribute("type","hidden"),e.setAttribute("name","updater-secret-input"),e.setAttribute("value",n),t.appendChild(e),document.body.appendChild(t),t.submit()}))},changeReleaseChannelToEnterprise(){this.changeReleaseChannel("enterprise")},changeReleaseChannelToStable(){this.changeReleaseChannel("stable")},changeReleaseChannelToBeta(){this.changeReleaseChannel("beta")},changeReleaseChannel(n){this.currentChannel=n,v.ajax({url:(0,s.generateUrl)("/apps/updatenotification/channel"),type:"POST",data:{channel:this.currentChannel},success(n){OC.msg.finishedAction("#channel_save_msg",n)}}),this.openedUpdateChannelMenu=!1},toggleUpdateChannelMenu(){this.openedUpdateChannelMenu=!this.openedUpdateChannelMenu},toggleHideMissingUpdates(){this.hideMissingUpdates=!this.hideMissingUpdates},toggleHideAvailableUpdates(){this.hideAvailableUpdates=!this.hideAvailableUpdates},toggleMenu(){this.openedWhatsNew=!this.openedWhatsNew},closeUpdateChannelMenu(){this.openedUpdateChannelMenu=!1},hideMenu(){this.openedWhatsNew=!1}}};var g=i(93379),C=i.n(g),m=i(62131);C()(m.Z,{insert:"head",singleton:!1}),m.Z.locals;var b=i(16722);C()(b.Z,{insert:"head",singleton:!1}),b.Z.locals;const w=(0,i(51900).Z)(f,(function(){var n=this,t=n.$createElement,e=n._self._c||t;return e("div",{staticClass:"followupsection",attrs:{id:"updatenotification"}},[e("div",{staticClass:"update"},[n.isNewVersionAvailable?[n.versionIsEol?e("p",[e("span",{staticClass:"warning"},[e("span",{staticClass:"icon icon-error-white"}),n._v("\n\t\t\t\t\t"+n._s(n.t("updatenotification","The version you are running is not maintained anymore. Please make sure to update to a supported version as soon as possible."))+"\n\t\t\t\t")])]):n._e(),n._v(" "),e("p",[e("span",{domProps:{innerHTML:n._s(n.newVersionAvailableString)}}),e("br"),n._v(" "),n.isListFetched?n._e():e("span",{staticClass:"icon icon-loading-small"}),n._v(" "),e("span",{domProps:{innerHTML:n._s(n.statusText)}})]),n._v(" "),n.missingAppUpdates.length?[e("h3",{on:{click:n.toggleHideMissingUpdates}},[n._v("\n\t\t\t\t\t"+n._s(n.t("updatenotification","Apps missing compatible version"))+"\n\t\t\t\t\t"),n.hideMissingUpdates?n._e():e("span",{staticClass:"icon icon-triangle-n"}),n._v(" "),n.hideMissingUpdates?e("span",{staticClass:"icon icon-triangle-s"}):n._e()]),n._v(" "),n.hideMissingUpdates?n._e():e("ul",{staticClass:"applist"},n._l(n.missingAppUpdates,(function(t,a){return e("li",{key:a},[e("a",{attrs:{href:"https://apps.nextcloud.com/apps/"+t.appId,title:n.t("settings","View in store")}},[n._v(n._s(t.appName)+" ↗")])])})),0)]:n._e(),n._v(" "),n.availableAppUpdates.length?[e("h3",{on:{click:n.toggleHideAvailableUpdates}},[n._v("\n\t\t\t\t\t"+n._s(n.t("updatenotification","Apps with compatible version"))+"\n\t\t\t\t\t"),n.hideAvailableUpdates?n._e():e("span",{staticClass:"icon icon-triangle-n"}),n._v(" "),n.hideAvailableUpdates?e("span",{staticClass:"icon icon-triangle-s"}):n._e()]),n._v(" "),n.hideAvailableUpdates?n._e():e("ul",{staticClass:"applist"},n._l(n.availableAppUpdates,(function(t,a){return e("li",{key:a},[e("a",{attrs:{href:"https://apps.nextcloud.com/apps/"+t.appId,title:n.t("settings","View in store")}},[n._v(n._s(t.appName)+" ↗")])])})),0)]:n._e(),n._v(" "),e("div",[n.updaterEnabled&&n.webUpdaterEnabled?e("a",{staticClass:"button primary",attrs:{href:"#"},on:{click:n.clickUpdaterButton}},[n._v(n._s(n.t("updatenotification","Open updater")))]):n._e(),n._v(" "),n.downloadLink?e("a",{staticClass:"button",class:{hidden:!n.updaterEnabled},attrs:{href:n.downloadLink}},[n._v(n._s(n.t("updatenotification","Download now")))]):n._e(),n._v(" "),n.updaterEnabled&&!n.webUpdaterEnabled?e("span",[n._v("\n\t\t\t\t\t"+n._s(n.t("updatenotification","Please use the command line updater to update."))+"\n\t\t\t\t")]):n._e(),n._v(" "),n.whatsNew?e("div",{staticClass:"whatsNew"},[e("div",{staticClass:"toggleWhatsNew"},[e("a",{directives:[{name:"click-outside",rawName:"v-click-outside",value:n.hideMenu,expression:"hideMenu"}],staticClass:"button",on:{click:n.toggleMenu}},[n._v(n._s(n.t("updatenotification","What's new?")))]),n._v(" "),e("div",{staticClass:"popovermenu",class:{"menu-center":!0,open:n.openedWhatsNew}},[e("PopoverMenu",{attrs:{menu:n.whatsNew}})],1)])]):n._e()])]:n.isUpdateChecked?[n._v("\n\t\t\t"+n._s(n.t("updatenotification","Your version is up to date."))+"\n\t\t\t"),e("span",{directives:[{name:"tooltip",rawName:"v-tooltip.auto",value:n.lastCheckedOnString,expression:"lastCheckedOnString",modifiers:{auto:!0}}],staticClass:"icon-info svg"})]:[n._v("\n\t\t\t"+n._s(n.t("updatenotification","The update check is not yet finished. Please refresh the page."))+"\n\t\t")],n._v(" "),n.isDefaultUpdateServerURL?n._e():[e("p",{staticClass:"topMargin"},[e("em",[n._v(n._s(n.t("updatenotification","A non-default update server is in use to be checked for updates:"))+" "),e("code",[n._v(n._s(n.updateServerURL))])])])]],2),n._v(" "),e("h3",{staticClass:"update-channel-selector"},[n._v("\n\t\t"+n._s(n.t("updatenotification","Update channel:"))+"\n\t\t"),e("div",{directives:[{name:"click-outside",rawName:"v-click-outside",value:n.closeUpdateChannelMenu,expression:"closeUpdateChannelMenu"}],staticClass:"update-menu"},[e("span",{staticClass:"icon-update-menu",on:{click:n.toggleUpdateChannelMenu}},[n._v("\n\t\t\t\t"+n._s(n.localizedChannelName)+"\n\t\t\t\t"),e("span",{staticClass:"icon-triangle-s"})]),n._v(" "),e("div",{staticClass:"popovermenu menu menu-center",class:{"show-menu":n.openedUpdateChannelMenu}},[e("PopoverMenu",{attrs:{menu:n.channelList}})],1)])]),n._v(" "),e("span",{staticClass:"msg",attrs:{id:"channel_save_msg"}}),e("br"),n._v(" "),e("p",[e("em",[n._v(n._s(n.t("updatenotification","You can always update to a newer version. But you can never downgrade to a more stable version.")))]),e("br"),n._v(" "),e("em",{domProps:{innerHTML:n._s(n.noteDelayedStableString)}})]),n._v(" "),e("p",{attrs:{id:"oca_updatenotification_groups"}},[n._v("\n\t\t"+n._s(n.t("updatenotification","Notify members of the following groups about available updates:"))+"\n\t\t"),e("Multiselect",{attrs:{options:n.availableGroups,multiple:!0,label:"label","track-by":"value","tag-width":75},model:{value:n.notifyGroups,callback:function(t){n.notifyGroups=t},expression:"notifyGroups"}}),e("br"),n._v(" "),"daily"===n.currentChannel||"git"===n.currentChannel?e("em",[n._v(n._s(n.t("updatenotification","Only notifications for app updates are available.")))]):n._e(),n._v(" "),"daily"===n.currentChannel?e("em",[n._v(n._s(n.t("updatenotification","The selected update channel makes dedicated notifications for the server obsolete.")))]):n._e(),n._v(" "),"git"===n.currentChannel?e("em",[n._v(n._s(n.t("updatenotification","The selected update channel does not support updates of the server.")))]):n._e()],1)])}),[],!1,null,"7a4f5dee",null).exports;o.default.mixin({methods:{t:(n,t,e,a,i)=>OC.L10N.translate(n,t,e,a,i),n:(n,t,e,a,i,o)=>OC.L10N.translatePlural(n,t,e,a,i,o)}}),new o.default({el:"#updatenotification",render:n=>n(w)})},62131:(n,t,e)=>{e.d(t,{Z:()=>r});var a=e(94015),i=e.n(a),o=e(23645),s=e.n(o)()(i());s.push([n.id,"#updatenotification[data-v-7a4f5dee]{margin-top:-25px;margin-bottom:200px}#updatenotification div.update[data-v-7a4f5dee],#updatenotification p[data-v-7a4f5dee]:not(.inlineblock){margin-bottom:25px}#updatenotification h2.inlineblock[data-v-7a4f5dee]{margin-top:25px}#updatenotification h3[data-v-7a4f5dee]{cursor:pointer}#updatenotification h3 .icon[data-v-7a4f5dee]{cursor:pointer}#updatenotification h3[data-v-7a4f5dee]:first-of-type{margin-top:0}#updatenotification h3.update-channel-selector[data-v-7a4f5dee]{display:inline-block;cursor:inherit}#updatenotification .icon[data-v-7a4f5dee]{display:inline-block;margin-bottom:-3px}#updatenotification .icon-triangle-s[data-v-7a4f5dee],#updatenotification .icon-triangle-n[data-v-7a4f5dee]{opacity:.5}#updatenotification .whatsNew[data-v-7a4f5dee]{display:inline-block}#updatenotification .toggleWhatsNew[data-v-7a4f5dee]{position:relative}#updatenotification .popovermenu[data-v-7a4f5dee]{margin-top:5px;width:300px}#updatenotification .popovermenu p[data-v-7a4f5dee]{margin-bottom:0;width:100%}#updatenotification .applist[data-v-7a4f5dee]{margin-bottom:25px}#updatenotification .update-menu[data-v-7a4f5dee]{position:relative;cursor:pointer;margin-left:3px;display:inline-block}#updatenotification .update-menu .icon-update-menu[data-v-7a4f5dee]{cursor:inherit}#updatenotification .update-menu .icon-update-menu .icon-triangle-s[data-v-7a4f5dee]{display:inline-block;vertical-align:middle;cursor:inherit;opacity:1}#updatenotification .update-menu .popovermenu[data-v-7a4f5dee]{display:none;top:28px}#updatenotification .update-menu .popovermenu.show-menu[data-v-7a4f5dee]{display:block}","",{version:3,sources:["webpack://./apps/updatenotification/src/components/UpdateNotification.vue"],names:[],mappings:"AA4bA,qCACC,gBAAA,CACA,mBAAA,CACA,yGAEC,kBAAA,CAED,oDACC,eAAA,CAED,wCACC,cAAA,CACA,8CACC,cAAA,CAED,sDACC,YAAA,CAED,gEACC,oBAAA,CACA,cAAA,CAGF,2CACC,oBAAA,CACA,kBAAA,CAED,4GACC,UAAA,CAED,+CACC,oBAAA,CAED,qDACC,iBAAA,CAED,kDAKC,cAAA,CACA,WAAA,CALA,oDACC,eAAA,CACA,UAAA,CAKF,8CACC,kBAAA,CAGD,kDACC,iBAAA,CACA,cAAA,CACA,eAAA,CACA,oBAAA,CACA,oEACC,cAAA,CACA,qFACC,oBAAA,CACA,qBAAA,CACA,cAAA,CACA,SAAA,CAGF,+DACC,YAAA,CACA,QAAA,CACA,yEACC,aAAA",sourcesContent:["\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n#updatenotification {\n\tmargin-top: -25px;\n\tmargin-bottom: 200px;\n\tdiv.update,\n\tp:not(.inlineblock) {\n\t\tmargin-bottom: 25px;\n\t}\n\th2.inlineblock {\n\t\tmargin-top: 25px;\n\t}\n\th3 {\n\t\tcursor: pointer;\n\t\t.icon {\n\t\t\tcursor: pointer;\n\t\t}\n\t\t&:first-of-type {\n\t\t\tmargin-top: 0;\n\t\t}\n\t\t&.update-channel-selector {\n\t\t\tdisplay: inline-block;\n\t\t\tcursor: inherit;\n\t\t}\n\t}\n\t.icon {\n\t\tdisplay: inline-block;\n\t\tmargin-bottom: -3px;\n\t}\n\t.icon-triangle-s, .icon-triangle-n {\n\t\topacity: 0.5;\n\t}\n\t.whatsNew {\n\t\tdisplay: inline-block;\n\t}\n\t.toggleWhatsNew {\n\t\tposition: relative;\n\t}\n\t.popovermenu {\n\t\tp {\n\t\t\tmargin-bottom: 0;\n\t\t\twidth: 100%;\n\t\t}\n\t\tmargin-top: 5px;\n\t\twidth: 300px;\n\t}\n\t.applist {\n\t\tmargin-bottom: 25px;\n\t}\n\n\t.update-menu {\n\t\tposition: relative;\n\t\tcursor: pointer;\n\t\tmargin-left: 3px;\n\t\tdisplay: inline-block;\n\t\t.icon-update-menu {\n\t\t\tcursor: inherit;\n\t\t\t.icon-triangle-s {\n\t\t\t\tdisplay: inline-block;\n\t\t\t\tvertical-align: middle;\n\t\t\t\tcursor: inherit;\n\t\t\t\topacity: 1;\n\t\t\t}\n\t\t}\n\t\t.popovermenu {\n\t\t\tdisplay: none;\n\t\t\ttop: 28px;\n\t\t\t&.show-menu {\n\t\t\t\tdisplay: block;\n\t\t\t}\n\t\t}\n\t}\n}\n"],sourceRoot:""}]);const r=s},16722:(n,t,e)=>{e.d(t,{Z:()=>r});var a=e(94015),i=e.n(a),o=e(23645),s=e.n(o)()(i());s.push([n.id,"#updatenotification .popovermenu{margin-top:5px;width:300px}#updatenotification .popovermenu p{margin-top:5px;width:100%}#updatenotification .update-menu .icon-star:hover,#updatenotification .update-menu .icon-star:focus{background-image:var(--icon-star-000)}#updatenotification .topMargin{margin-top:15px}","",{version:3,sources:["webpack://./apps/updatenotification/src/components/UpdateNotification.vue"],names:[],mappings:"AAsgBA,iCAKC,cAAA,CACA,WAAA,CALA,mCACC,cAAA,CACA,UAAA,CAMF,oGAEC,qCAAA,CAED,+BACC,eAAA",sourcesContent:["\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n/* override needed to make menu wider */\n#updatenotification .popovermenu {\n\tp {\n\t\tmargin-top: 5px;\n\t\twidth: 100%;\n\t}\n\tmargin-top: 5px;\n\twidth: 300px;\n}\n/* override needed to replace yellow hover state with a dark one */\n#updatenotification .update-menu .icon-star:hover,\n#updatenotification .update-menu .icon-star:focus {\n\tbackground-image: var(--icon-star-000);\n}\n#updatenotification .topMargin {\n\tmargin-top: 15px;\n}\n"],sourceRoot:""}]);const r=s}},i={};function o(n){var t=i[n];if(void 0!==t)return t.exports;var e=i[n]={id:n,loaded:!1,exports:{}};return a[n].call(e.exports,e,e.exports,o),e.loaded=!0,e.exports}o.m=a,o.amdD=function(){throw new Error("define cannot be used indirect")},o.amdO={},e=[],o.O=(n,t,a,i)=>{if(!t){var s=1/0;for(d=0;d<e.length;d++){t=e[d][0],a=e[d][1],i=e[d][2];for(var r=!0,p=0;p<t.length;p++)(!1&i||s>=i)&&Object.keys(o.O).every((n=>o.O[n](t[p])))?t.splice(p--,1):(r=!1,i<s&&(s=i));if(r){e.splice(d--,1);var l=a();void 0!==l&&(n=l)}}return n}i=i||0;for(var d=e.length;d>0&&e[d-1][2]>i;d--)e[d]=e[d-1];e[d]=[t,a,i]},o.n=n=>{var t=n&&n.__esModule?()=>n.default:()=>n;return o.d(t,{a:t}),t},o.d=(n,t)=>{for(var e in t)o.o(t,e)&&!o.o(n,e)&&Object.defineProperty(n,e,{enumerable:!0,get:t[e]})},o.g=function(){if("object"==typeof globalThis)return globalThis;try{return this||new Function("return this")()}catch(n){if("object"==typeof window)return window}}(),o.o=(n,t)=>Object.prototype.hasOwnProperty.call(n,t),o.r=n=>{"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(n,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(n,"__esModule",{value:!0})},o.nmd=n=>(n.paths=[],n.children||(n.children=[]),n),o.j=292,(()=>{var n={292:0};o.O.j=t=>0===n[t];var t=(t,e)=>{var a,i,s=e[0],r=e[1],p=e[2],l=0;if(s.some((t=>0!==n[t]))){for(a in r)o.o(r,a)&&(o.m[a]=r[a]);if(p)var d=p(o)}for(t&&t(e);l<s.length;l++)i=s[l],o.o(n,i)&&n[i]&&n[i][0](),n[s[l]]=0;return o.O(d)},e=self.webpackChunknextcloud=self.webpackChunknextcloud||[];e.forEach(t.bind(null,0)),e.push=t.bind(null,e.push.bind(e))})();var s=o.O(void 0,[874],(()=>o(45571)));s=o.O(s)})();
-//# sourceMappingURL=updatenotification-updatenotification.js.map?v=b7fd15c553d0dcecf1cd
+/******/ (() => { // webpackBootstrap
+/******/ 	"use strict";
+/******/ 	var __webpack_modules__ = ({
+
+/***/ "./apps/updatenotification/src/init.js":
+/*!*********************************************!*\
+  !*** ./apps/updatenotification/src/init.js ***!
+  \*********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.runtime.esm.js");
+/* harmony import */ var _components_UpdateNotification__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./components/UpdateNotification */ "./apps/updatenotification/src/components/UpdateNotification.vue");
+/**
+ * @copyright Copyright (c) 2018 Joas Schilling <coding@schilljs.com>
+ *
+ * @author Joas Schilling <coding@schilljs.com>
+ * @author John Molakvoæ <skjnldsv@protonmail.com>
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+
+vue__WEBPACK_IMPORTED_MODULE_1__["default"].mixin({
+  methods: {
+    t(app, text, vars, count, options) {
+      return OC.L10N.translate(app, text, vars, count, options);
+    },
+
+    n(app, textSingular, textPlural, count, vars, options) {
+      return OC.L10N.translatePlural(app, textSingular, textPlural, count, vars, options);
+    }
+
+  }
+}); // eslint-disable-next-line no-new
+
+new vue__WEBPACK_IMPORTED_MODULE_1__["default"]({
+  el: '#updatenotification',
+  render: h => h(_components_UpdateNotification__WEBPACK_IMPORTED_MODULE_0__["default"])
+});
+
+/***/ }),
+
+/***/ "./node_modules/babel-loader/lib/index.js!./node_modules/vue-loader/lib/index.js??vue-loader-options!./apps/updatenotification/src/components/UpdateNotification.vue?vue&type=script&lang=js&":
+/*!****************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib/index.js!./node_modules/vue-loader/lib/index.js??vue-loader-options!./apps/updatenotification/src/components/UpdateNotification.vue?vue&type=script&lang=js& ***!
+  \****************************************************************************************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _nextcloud_router__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @nextcloud/router */ "./node_modules/@nextcloud/router/dist/index.js");
+/* harmony import */ var _nextcloud_vue_dist_Components_PopoverMenu__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @nextcloud/vue/dist/Components/PopoverMenu */ "./node_modules/@nextcloud/vue/dist/Components/PopoverMenu.js");
+/* harmony import */ var _nextcloud_vue_dist_Components_PopoverMenu__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_nextcloud_vue_dist_Components_PopoverMenu__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _nextcloud_vue_dist_Components_Multiselect__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @nextcloud/vue/dist/Components/Multiselect */ "./node_modules/@nextcloud/vue/dist/Components/Multiselect.js");
+/* harmony import */ var _nextcloud_vue_dist_Components_Multiselect__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_nextcloud_vue_dist_Components_Multiselect__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var v_tooltip__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! v-tooltip */ "./node_modules/v-tooltip/dist/v-tooltip.esm.js");
+/* harmony import */ var vue_click_outside__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! vue-click-outside */ "./node_modules/vue-click-outside/index.js");
+/* harmony import */ var vue_click_outside__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(vue_click_outside__WEBPACK_IMPORTED_MODULE_4__);
+/* provided dependency */ var _ = __webpack_require__(/*! underscore */ "./node_modules/underscore/modules/index-all.js");
+/* provided dependency */ var $ = __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js");
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+
+
+
+v_tooltip__WEBPACK_IMPORTED_MODULE_3__.VTooltip.options.defaultHtml = false;
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
+  name: 'UpdateNotification',
+  components: {
+    Multiselect: (_nextcloud_vue_dist_Components_Multiselect__WEBPACK_IMPORTED_MODULE_2___default()),
+    PopoverMenu: (_nextcloud_vue_dist_Components_PopoverMenu__WEBPACK_IMPORTED_MODULE_1___default())
+  },
+  directives: {
+    ClickOutside: (vue_click_outside__WEBPACK_IMPORTED_MODULE_4___default()),
+    tooltip: v_tooltip__WEBPACK_IMPORTED_MODULE_3__.VTooltip
+  },
+
+  data() {
+    return {
+      newVersionString: '',
+      lastCheckedDate: '',
+      isUpdateChecked: false,
+      webUpdaterEnabled: true,
+      updaterEnabled: true,
+      versionIsEol: false,
+      downloadLink: '',
+      isNewVersionAvailable: false,
+      hasValidSubscription: false,
+      updateServerURL: '',
+      changelogURL: '',
+      whatsNewData: [],
+      currentChannel: '',
+      channels: [],
+      notifyGroups: '',
+      availableGroups: [],
+      isDefaultUpdateServerURL: true,
+      enableChangeWatcher: false,
+      availableAppUpdates: [],
+      missingAppUpdates: [],
+      appStoreFailed: false,
+      appStoreDisabled: false,
+      isListFetched: false,
+      hideMissingUpdates: false,
+      hideAvailableUpdates: true,
+      openedWhatsNew: false,
+      openedUpdateChannelMenu: false
+    };
+  },
+
+  _$el: null,
+  _$notifyGroups: null,
+  computed: {
+    newVersionAvailableString() {
+      return t('updatenotification', 'A new version is available: <strong>{newVersionString}</strong>', {
+        newVersionString: this.newVersionString
+      });
+    },
+
+    noteDelayedStableString() {
+      return t('updatenotification', 'Note that after a new release the update only shows up after the first minor release or later. We roll out new versions spread out over time to our users and sometimes skip a version when issues are found. Learn more about updates and release channels at {link}').replace('{link}', '<a href="https://nextcloud.com/release-channels/">https://nextcloud.com/release-channels/</a>');
+    },
+
+    lastCheckedOnString() {
+      return t('updatenotification', 'Checked on {lastCheckedDate}', {
+        lastCheckedDate: this.lastCheckedDate
+      });
+    },
+
+    statusText() {
+      if (!this.isListFetched) {
+        return t('updatenotification', 'Checking apps for compatible versions');
+      }
+
+      if (this.appStoreDisabled) {
+        return t('updatenotification', 'Please make sure your config.php does not set <samp>appstoreenabled</samp> to false.');
+      }
+
+      if (this.appStoreFailed) {
+        return t('updatenotification', 'Could not connect to the App Store or no updates have been returned at all. Search manually for updates or make sure your server has access to the internet and can connect to the App Store.');
+      }
+
+      return this.missingAppUpdates.length === 0 ? t('updatenotification', '<strong>All</strong> apps have a compatible version for this Nextcloud version available', this) : n('updatenotification', '<strong>%n</strong> app has no compatible version for this Nextcloud version available', '<strong>%n</strong> apps have no compatible version for this Nextcloud version available', this.missingAppUpdates.length);
+    },
+
+    whatsNew() {
+      if (this.whatsNewData.length === 0) {
+        return null;
+      }
+
+      const whatsNew = [];
+
+      for (const i in this.whatsNewData) {
+        whatsNew[i] = {
+          icon: 'icon-checkmark',
+          longtext: this.whatsNewData[i]
+        };
+      }
+
+      if (this.changelogURL) {
+        whatsNew.push({
+          href: this.changelogURL,
+          text: t('updatenotification', 'View changelog'),
+          icon: 'icon-link',
+          target: '_blank',
+          action: ''
+        });
+      }
+
+      return whatsNew;
+    },
+
+    channelList() {
+      const channelList = [];
+      channelList.push({
+        text: t('updatenotification', 'Enterprise'),
+        longtext: t('updatenotification', 'For enterprise use. Provides always the latest patch level, but will not update to the next major release immediately. That update happens once Nextcloud GmbH has done additional hardening and testing for large-scale and mission-critical deployments. This channel is only available to customers and provides the Nextcloud Enterprise package.'),
+        icon: 'icon-star',
+        active: this.currentChannel === 'enterprise',
+        disabled: !this.hasValidSubscription,
+        action: this.changeReleaseChannelToEnterprise
+      });
+      channelList.push({
+        text: t('updatenotification', 'Stable'),
+        longtext: t('updatenotification', 'The most recent stable version. It is suited for regular use and will always update to the latest major version.'),
+        icon: 'icon-checkmark',
+        active: this.currentChannel === 'stable',
+        action: this.changeReleaseChannelToStable
+      });
+      channelList.push({
+        text: t('updatenotification', 'Beta'),
+        longtext: t('updatenotification', 'A pre-release version only for testing new features, not for production environments.'),
+        icon: 'icon-category-customization',
+        active: this.currentChannel === 'beta',
+        action: this.changeReleaseChannelToBeta
+      });
+
+      if (this.isNonDefaultChannel) {
+        channelList.push({
+          text: this.currentChannel,
+          icon: 'icon-rename',
+          active: true
+        });
+      }
+
+      return channelList;
+    },
+
+    isNonDefaultChannel() {
+      return this.currentChannel !== 'enterprise' && this.currentChannel !== 'stable' && this.currentChannel !== 'beta';
+    },
+
+    localizedChannelName() {
+      switch (this.currentChannel) {
+        case 'enterprise':
+          return t('updatenotification', 'Enterprise');
+
+        case 'stable':
+          return t('updatenotification', 'Stable');
+
+        case 'beta':
+          return t('updatenotification', 'Beta');
+
+        default:
+          return this.currentChannel;
+      }
+    }
+
+  },
+  watch: {
+    notifyGroups(selectedOptions) {
+      if (!this.enableChangeWatcher) {
+        return;
+      }
+
+      const selectedGroups = [];
+
+      _.each(selectedOptions, function (group) {
+        selectedGroups.push(group.value);
+      });
+
+      OCP.AppConfig.setValue('updatenotification', 'notify_groups', JSON.stringify(selectedGroups));
+    },
+
+    isNewVersionAvailable() {
+      if (!this.isNewVersionAvailable) {
+        return;
+      }
+
+      $.ajax({
+        url: (0,_nextcloud_router__WEBPACK_IMPORTED_MODULE_0__.generateOcsUrl)('apps/updatenotification/api/v1/applist/{newVersion}', {
+          newVersion: this.newVersion
+        }),
+        type: 'GET',
+
+        beforeSend(request) {
+          request.setRequestHeader('Accept', 'application/json');
+        },
+
+        success: function (response) {
+          this.availableAppUpdates = response.ocs.data.available;
+          this.missingAppUpdates = response.ocs.data.missing;
+          this.isListFetched = true;
+          this.appStoreFailed = false;
+        }.bind(this),
+        error: function (xhr) {
+          this.availableAppUpdates = [];
+          this.missingAppUpdates = [];
+          this.appStoreDisabled = xhr.responseJSON.ocs.data.appstore_disabled;
+          this.isListFetched = true;
+          this.appStoreFailed = true;
+        }.bind(this)
+      });
+    }
+
+  },
+
+  beforeMount() {
+    // Parse server data
+    const data = JSON.parse($('#updatenotification').attr('data-json'));
+    this.newVersion = data.newVersion;
+    this.newVersionString = data.newVersionString;
+    this.lastCheckedDate = data.lastChecked;
+    this.isUpdateChecked = data.isUpdateChecked;
+    this.webUpdaterEnabled = data.webUpdaterEnabled;
+    this.updaterEnabled = data.updaterEnabled;
+    this.downloadLink = data.downloadLink;
+    this.isNewVersionAvailable = data.isNewVersionAvailable;
+    this.updateServerURL = data.updateServerURL;
+    this.currentChannel = data.currentChannel;
+    this.channels = data.channels;
+    this.notifyGroups = data.notifyGroups;
+    this.isDefaultUpdateServerURL = data.isDefaultUpdateServerURL;
+    this.versionIsEol = data.versionIsEol;
+    this.hasValidSubscription = data.hasValidSubscription;
+
+    if (data.changes && data.changes.changelogURL) {
+      this.changelogURL = data.changes.changelogURL;
+    }
+
+    if (data.changes && data.changes.whatsNew) {
+      if (data.changes.whatsNew.admin) {
+        this.whatsNewData = this.whatsNewData.concat(data.changes.whatsNew.admin);
+      }
+
+      this.whatsNewData = this.whatsNewData.concat(data.changes.whatsNew.regular);
+    }
+  },
+
+  mounted() {
+    this._$el = $(this.$el);
+    this._$notifyGroups = this._$el.find('#oca_updatenotification_groups_list');
+
+    this._$notifyGroups.on('change', function () {
+      this.$emit('input');
+    }.bind(this));
+
+    $.ajax({
+      url: (0,_nextcloud_router__WEBPACK_IMPORTED_MODULE_0__.generateOcsUrl)('cloud/groups'),
+      dataType: 'json',
+      success: function (data) {
+        const results = [];
+        $.each(data.ocs.data.groups, function (i, group) {
+          results.push({
+            value: group,
+            label: group
+          });
+        });
+        this.availableGroups = results;
+        this.enableChangeWatcher = true;
+      }.bind(this)
+    });
+  },
+
+  methods: {
+    /**
+     * Creates a new authentication token and loads the updater URL
+     */
+    clickUpdaterButton() {
+      $.ajax({
+        url: (0,_nextcloud_router__WEBPACK_IMPORTED_MODULE_0__.generateUrl)('/apps/updatenotification/credentials')
+      }).success(function (token) {
+        // create a form to send a proper post request to the updater
+        const form = document.createElement('form');
+        form.setAttribute('method', 'post');
+        form.setAttribute('action', (0,_nextcloud_router__WEBPACK_IMPORTED_MODULE_0__.getRootUrl)() + '/updater/');
+        const hiddenField = document.createElement('input');
+        hiddenField.setAttribute('type', 'hidden');
+        hiddenField.setAttribute('name', 'updater-secret-input');
+        hiddenField.setAttribute('value', token);
+        form.appendChild(hiddenField);
+        document.body.appendChild(form);
+        form.submit();
+      });
+    },
+
+    changeReleaseChannelToEnterprise() {
+      this.changeReleaseChannel('enterprise');
+    },
+
+    changeReleaseChannelToStable() {
+      this.changeReleaseChannel('stable');
+    },
+
+    changeReleaseChannelToBeta() {
+      this.changeReleaseChannel('beta');
+    },
+
+    changeReleaseChannel(channel) {
+      this.currentChannel = channel;
+      $.ajax({
+        url: (0,_nextcloud_router__WEBPACK_IMPORTED_MODULE_0__.generateUrl)('/apps/updatenotification/channel'),
+        type: 'POST',
+        data: {
+          channel: this.currentChannel
+        },
+
+        success(data) {
+          OC.msg.finishedAction('#channel_save_msg', data);
+        }
+
+      });
+      this.openedUpdateChannelMenu = false;
+    },
+
+    toggleUpdateChannelMenu() {
+      this.openedUpdateChannelMenu = !this.openedUpdateChannelMenu;
+    },
+
+    toggleHideMissingUpdates() {
+      this.hideMissingUpdates = !this.hideMissingUpdates;
+    },
+
+    toggleHideAvailableUpdates() {
+      this.hideAvailableUpdates = !this.hideAvailableUpdates;
+    },
+
+    toggleMenu() {
+      this.openedWhatsNew = !this.openedWhatsNew;
+    },
+
+    closeUpdateChannelMenu() {
+      this.openedUpdateChannelMenu = false;
+    },
+
+    hideMenu() {
+      this.openedWhatsNew = false;
+    }
+
+  }
+});
+
+/***/ }),
+
+/***/ "./node_modules/css-loader/dist/cjs.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/sass-loader/dist/cjs.js!./node_modules/vue-loader/lib/index.js??vue-loader-options!./apps/updatenotification/src/components/UpdateNotification.vue?vue&type=style&index=0&id=82102c34&lang=scss&scoped=true&":
+/*!**********************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/css-loader/dist/cjs.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/sass-loader/dist/cjs.js!./node_modules/vue-loader/lib/index.js??vue-loader-options!./apps/updatenotification/src/components/UpdateNotification.vue?vue&type=style&index=0&id=82102c34&lang=scss&scoped=true& ***!
+  \**********************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/***/ ((module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../../node_modules/css-loader/dist/runtime/api.js */ "./node_modules/css-loader/dist/runtime/api.js");
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0__);
+// Imports
+
+var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default()(function(i){return i[1]});
+// Module
+___CSS_LOADER_EXPORT___.push([module.id, "#updatenotification[data-v-82102c34] {\n  margin-top: -25px;\n  margin-bottom: 200px;\n}\n#updatenotification div.update[data-v-82102c34],\n#updatenotification p[data-v-82102c34]:not(.inlineblock) {\n  margin-bottom: 25px;\n}\n#updatenotification h2.inlineblock[data-v-82102c34] {\n  margin-top: 25px;\n}\n#updatenotification h3[data-v-82102c34] {\n  cursor: pointer;\n}\n#updatenotification h3 .icon[data-v-82102c34] {\n  cursor: pointer;\n}\n#updatenotification h3[data-v-82102c34]:first-of-type {\n  margin-top: 0;\n}\n#updatenotification h3.update-channel-selector[data-v-82102c34] {\n  display: inline-block;\n  cursor: inherit;\n}\n#updatenotification .icon[data-v-82102c34] {\n  display: inline-block;\n  margin-bottom: -3px;\n}\n#updatenotification .icon-triangle-s[data-v-82102c34], #updatenotification .icon-triangle-n[data-v-82102c34] {\n  opacity: 0.5;\n}\n#updatenotification .whatsNew[data-v-82102c34] {\n  display: inline-block;\n}\n#updatenotification .toggleWhatsNew[data-v-82102c34] {\n  position: relative;\n}\n#updatenotification .popovermenu[data-v-82102c34] {\n  margin-top: 5px;\n  width: 300px;\n}\n#updatenotification .popovermenu p[data-v-82102c34] {\n  margin-bottom: 0;\n  width: 100%;\n}\n#updatenotification .applist[data-v-82102c34] {\n  margin-bottom: 25px;\n}\n#updatenotification .update-menu[data-v-82102c34] {\n  position: relative;\n  cursor: pointer;\n  margin-left: 3px;\n  display: inline-block;\n}\n#updatenotification .update-menu .icon-update-menu[data-v-82102c34] {\n  cursor: inherit;\n}\n#updatenotification .update-menu .icon-update-menu .icon-triangle-s[data-v-82102c34] {\n  display: inline-block;\n  vertical-align: middle;\n  cursor: inherit;\n  opacity: 1;\n}\n#updatenotification .update-menu .popovermenu[data-v-82102c34] {\n  display: none;\n  top: 28px;\n}\n#updatenotification .update-menu .popovermenu.show-menu[data-v-82102c34] {\n  display: block;\n}", ""]);
+// Exports
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
+
+
+/***/ }),
+
+/***/ "./node_modules/css-loader/dist/cjs.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/sass-loader/dist/cjs.js!./node_modules/vue-loader/lib/index.js??vue-loader-options!./apps/updatenotification/src/components/UpdateNotification.vue?vue&type=style&index=1&lang=scss&":
+/*!**********************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/css-loader/dist/cjs.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/sass-loader/dist/cjs.js!./node_modules/vue-loader/lib/index.js??vue-loader-options!./apps/updatenotification/src/components/UpdateNotification.vue?vue&type=style&index=1&lang=scss& ***!
+  \**********************************************************************************************************************************************************************************************************************************************************************************************************/
+/***/ ((module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../../node_modules/css-loader/dist/runtime/api.js */ "./node_modules/css-loader/dist/runtime/api.js");
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0__);
+// Imports
+
+var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default()(function(i){return i[1]});
+// Module
+___CSS_LOADER_EXPORT___.push([module.id, "/* override needed to make menu wider */\n#updatenotification .popovermenu {\n  margin-top: 5px;\n  width: 300px;\n}\n#updatenotification .popovermenu p {\n  margin-top: 5px;\n  width: 100%;\n}\n\n/* override needed to replace yellow hover state with a dark one */\n#updatenotification .update-menu .icon-star:hover,\n#updatenotification .update-menu .icon-star:focus {\n  background-image: var(--icon-star-000);\n}\n#updatenotification .topMargin {\n  margin-top: 15px;\n}", ""]);
+// Exports
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
+
+
+/***/ }),
+
+/***/ "./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/sass-loader/dist/cjs.js!./node_modules/vue-loader/lib/index.js??vue-loader-options!./apps/updatenotification/src/components/UpdateNotification.vue?vue&type=style&index=0&id=82102c34&lang=scss&scoped=true&":
+/*!**************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/sass-loader/dist/cjs.js!./node_modules/vue-loader/lib/index.js??vue-loader-options!./apps/updatenotification/src/components/UpdateNotification.vue?vue&type=style&index=0&id=82102c34&lang=scss&scoped=true& ***!
+  \**************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! !../../../../node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js */ "./node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js");
+/* harmony import */ var _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _node_modules_css_loader_dist_cjs_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_sass_loader_dist_cjs_js_node_modules_vue_loader_lib_index_js_vue_loader_options_UpdateNotification_vue_vue_type_style_index_0_id_82102c34_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! !!../../../../node_modules/css-loader/dist/cjs.js!../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../node_modules/sass-loader/dist/cjs.js!../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./UpdateNotification.vue?vue&type=style&index=0&id=82102c34&lang=scss&scoped=true& */ "./node_modules/css-loader/dist/cjs.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/sass-loader/dist/cjs.js!./node_modules/vue-loader/lib/index.js??vue-loader-options!./apps/updatenotification/src/components/UpdateNotification.vue?vue&type=style&index=0&id=82102c34&lang=scss&scoped=true&");
+
+            
+
+var options = {};
+
+options.insert = "head";
+options.singleton = false;
+
+var update = _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0___default()(_node_modules_css_loader_dist_cjs_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_sass_loader_dist_cjs_js_node_modules_vue_loader_lib_index_js_vue_loader_options_UpdateNotification_vue_vue_type_style_index_0_id_82102c34_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_1__["default"], options);
+
+
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (_node_modules_css_loader_dist_cjs_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_sass_loader_dist_cjs_js_node_modules_vue_loader_lib_index_js_vue_loader_options_UpdateNotification_vue_vue_type_style_index_0_id_82102c34_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_1__["default"].locals || {});
+
+/***/ }),
+
+/***/ "./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/sass-loader/dist/cjs.js!./node_modules/vue-loader/lib/index.js??vue-loader-options!./apps/updatenotification/src/components/UpdateNotification.vue?vue&type=style&index=1&lang=scss&":
+/*!**************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/sass-loader/dist/cjs.js!./node_modules/vue-loader/lib/index.js??vue-loader-options!./apps/updatenotification/src/components/UpdateNotification.vue?vue&type=style&index=1&lang=scss& ***!
+  \**************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! !../../../../node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js */ "./node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js");
+/* harmony import */ var _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _node_modules_css_loader_dist_cjs_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_sass_loader_dist_cjs_js_node_modules_vue_loader_lib_index_js_vue_loader_options_UpdateNotification_vue_vue_type_style_index_1_lang_scss___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! !!../../../../node_modules/css-loader/dist/cjs.js!../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../node_modules/sass-loader/dist/cjs.js!../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./UpdateNotification.vue?vue&type=style&index=1&lang=scss& */ "./node_modules/css-loader/dist/cjs.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/sass-loader/dist/cjs.js!./node_modules/vue-loader/lib/index.js??vue-loader-options!./apps/updatenotification/src/components/UpdateNotification.vue?vue&type=style&index=1&lang=scss&");
+
+            
+
+var options = {};
+
+options.insert = "head";
+options.singleton = false;
+
+var update = _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0___default()(_node_modules_css_loader_dist_cjs_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_sass_loader_dist_cjs_js_node_modules_vue_loader_lib_index_js_vue_loader_options_UpdateNotification_vue_vue_type_style_index_1_lang_scss___WEBPACK_IMPORTED_MODULE_1__["default"], options);
+
+
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (_node_modules_css_loader_dist_cjs_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_sass_loader_dist_cjs_js_node_modules_vue_loader_lib_index_js_vue_loader_options_UpdateNotification_vue_vue_type_style_index_1_lang_scss___WEBPACK_IMPORTED_MODULE_1__["default"].locals || {});
+
+/***/ }),
+
+/***/ "./apps/updatenotification/src/components/UpdateNotification.vue":
+/*!***********************************************************************!*\
+  !*** ./apps/updatenotification/src/components/UpdateNotification.vue ***!
+  \***********************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _UpdateNotification_vue_vue_type_template_id_82102c34_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./UpdateNotification.vue?vue&type=template&id=82102c34&scoped=true& */ "./apps/updatenotification/src/components/UpdateNotification.vue?vue&type=template&id=82102c34&scoped=true&");
+/* harmony import */ var _UpdateNotification_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./UpdateNotification.vue?vue&type=script&lang=js& */ "./apps/updatenotification/src/components/UpdateNotification.vue?vue&type=script&lang=js&");
+/* harmony import */ var _UpdateNotification_vue_vue_type_style_index_0_id_82102c34_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./UpdateNotification.vue?vue&type=style&index=0&id=82102c34&lang=scss&scoped=true& */ "./apps/updatenotification/src/components/UpdateNotification.vue?vue&type=style&index=0&id=82102c34&lang=scss&scoped=true&");
+/* harmony import */ var _UpdateNotification_vue_vue_type_style_index_1_lang_scss___WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./UpdateNotification.vue?vue&type=style&index=1&lang=scss& */ "./apps/updatenotification/src/components/UpdateNotification.vue?vue&type=style&index=1&lang=scss&");
+/* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! !../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
+
+
+;
+
+
+
+/* normalize component */
+
+var component = (0,_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_4__["default"])(
+  _UpdateNotification_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
+  _UpdateNotification_vue_vue_type_template_id_82102c34_scoped_true___WEBPACK_IMPORTED_MODULE_0__.render,
+  _UpdateNotification_vue_vue_type_template_id_82102c34_scoped_true___WEBPACK_IMPORTED_MODULE_0__.staticRenderFns,
+  false,
+  null,
+  "82102c34",
+  null
+  
+)
+
+/* hot reload */
+if (false) { var api; }
+component.options.__file = "apps/updatenotification/src/components/UpdateNotification.vue"
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (component.exports);
+
+/***/ }),
+
+/***/ "./apps/updatenotification/src/components/UpdateNotification.vue?vue&type=script&lang=js&":
+/*!************************************************************************************************!*\
+  !*** ./apps/updatenotification/src/components/UpdateNotification.vue?vue&type=script&lang=js& ***!
+  \************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_node_modules_vue_loader_lib_index_js_vue_loader_options_UpdateNotification_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../node_modules/babel-loader/lib/index.js!../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./UpdateNotification.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js!./node_modules/vue-loader/lib/index.js??vue-loader-options!./apps/updatenotification/src/components/UpdateNotification.vue?vue&type=script&lang=js&");
+ /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (_node_modules_babel_loader_lib_index_js_node_modules_vue_loader_lib_index_js_vue_loader_options_UpdateNotification_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+
+/***/ }),
+
+/***/ "./apps/updatenotification/src/components/UpdateNotification.vue?vue&type=style&index=0&id=82102c34&lang=scss&scoped=true&":
+/*!*********************************************************************************************************************************!*\
+  !*** ./apps/updatenotification/src/components/UpdateNotification.vue?vue&type=style&index=0&id=82102c34&lang=scss&scoped=true& ***!
+  \*********************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_style_loader_dist_cjs_js_node_modules_css_loader_dist_cjs_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_sass_loader_dist_cjs_js_node_modules_vue_loader_lib_index_js_vue_loader_options_UpdateNotification_vue_vue_type_style_index_0_id_82102c34_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../node_modules/style-loader/dist/cjs.js!../../../../node_modules/css-loader/dist/cjs.js!../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../node_modules/sass-loader/dist/cjs.js!../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./UpdateNotification.vue?vue&type=style&index=0&id=82102c34&lang=scss&scoped=true& */ "./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/sass-loader/dist/cjs.js!./node_modules/vue-loader/lib/index.js??vue-loader-options!./apps/updatenotification/src/components/UpdateNotification.vue?vue&type=style&index=0&id=82102c34&lang=scss&scoped=true&");
+
+
+/***/ }),
+
+/***/ "./apps/updatenotification/src/components/UpdateNotification.vue?vue&type=style&index=1&lang=scss&":
+/*!*********************************************************************************************************!*\
+  !*** ./apps/updatenotification/src/components/UpdateNotification.vue?vue&type=style&index=1&lang=scss& ***!
+  \*********************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_style_loader_dist_cjs_js_node_modules_css_loader_dist_cjs_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_sass_loader_dist_cjs_js_node_modules_vue_loader_lib_index_js_vue_loader_options_UpdateNotification_vue_vue_type_style_index_1_lang_scss___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../node_modules/style-loader/dist/cjs.js!../../../../node_modules/css-loader/dist/cjs.js!../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../node_modules/sass-loader/dist/cjs.js!../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./UpdateNotification.vue?vue&type=style&index=1&lang=scss& */ "./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/sass-loader/dist/cjs.js!./node_modules/vue-loader/lib/index.js??vue-loader-options!./apps/updatenotification/src/components/UpdateNotification.vue?vue&type=style&index=1&lang=scss&");
+
+
+/***/ }),
+
+/***/ "./apps/updatenotification/src/components/UpdateNotification.vue?vue&type=template&id=82102c34&scoped=true&":
+/*!******************************************************************************************************************!*\
+  !*** ./apps/updatenotification/src/components/UpdateNotification.vue?vue&type=template&id=82102c34&scoped=true& ***!
+  \******************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "render": () => (/* reexport safe */ _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_UpdateNotification_vue_vue_type_template_id_82102c34_scoped_true___WEBPACK_IMPORTED_MODULE_0__.render),
+/* harmony export */   "staticRenderFns": () => (/* reexport safe */ _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_UpdateNotification_vue_vue_type_template_id_82102c34_scoped_true___WEBPACK_IMPORTED_MODULE_0__.staticRenderFns)
+/* harmony export */ });
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_UpdateNotification_vue_vue_type_template_id_82102c34_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./UpdateNotification.vue?vue&type=template&id=82102c34&scoped=true& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./apps/updatenotification/src/components/UpdateNotification.vue?vue&type=template&id=82102c34&scoped=true&");
+
+
+/***/ }),
+
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./apps/updatenotification/src/components/UpdateNotification.vue?vue&type=template&id=82102c34&scoped=true&":
+/*!*********************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./apps/updatenotification/src/components/UpdateNotification.vue?vue&type=template&id=82102c34&scoped=true& ***!
+  \*********************************************************************************************************************************************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "render": () => (/* binding */ render),
+/* harmony export */   "staticRenderFns": () => (/* binding */ staticRenderFns)
+/* harmony export */ });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c(
+    "div",
+    { staticClass: "followupsection", attrs: { id: "updatenotification" } },
+    [
+      _c(
+        "div",
+        { staticClass: "update" },
+        [
+          _vm.isNewVersionAvailable
+            ? [
+                _vm.versionIsEol
+                  ? _c("p", [
+                      _c("span", { staticClass: "warning" }, [
+                        _c("span", { staticClass: "icon icon-error-white" }),
+                        _vm._v(
+                          "\n\t\t\t\t\t" +
+                            _vm._s(
+                              _vm.t(
+                                "updatenotification",
+                                "The version you are running is not maintained anymore. Please make sure to update to a supported version as soon as possible."
+                              )
+                            ) +
+                            "\n\t\t\t\t"
+                        )
+                      ])
+                    ])
+                  : _vm._e(),
+                _vm._v(" "),
+                _c("p", [
+                  _c("span", {
+                    domProps: {
+                      innerHTML: _vm._s(_vm.newVersionAvailableString)
+                    }
+                  }),
+                  _c("br"),
+                  _vm._v(" "),
+                  !_vm.isListFetched
+                    ? _c("span", { staticClass: "icon icon-loading-small" })
+                    : _vm._e(),
+                  _vm._v(" "),
+                  _c("span", {
+                    domProps: { innerHTML: _vm._s(_vm.statusText) }
+                  })
+                ]),
+                _vm._v(" "),
+                _vm.missingAppUpdates.length
+                  ? [
+                      _c(
+                        "h3",
+                        { on: { click: _vm.toggleHideMissingUpdates } },
+                        [
+                          _vm._v(
+                            "\n\t\t\t\t\t" +
+                              _vm._s(
+                                _vm.t(
+                                  "updatenotification",
+                                  "Apps missing compatible version"
+                                )
+                              ) +
+                              "\n\t\t\t\t\t"
+                          ),
+                          !_vm.hideMissingUpdates
+                            ? _c("span", {
+                                staticClass: "icon icon-triangle-n"
+                              })
+                            : _vm._e(),
+                          _vm._v(" "),
+                          _vm.hideMissingUpdates
+                            ? _c("span", {
+                                staticClass: "icon icon-triangle-s"
+                              })
+                            : _vm._e()
+                        ]
+                      ),
+                      _vm._v(" "),
+                      !_vm.hideMissingUpdates
+                        ? _c(
+                            "ul",
+                            { staticClass: "applist" },
+                            _vm._l(_vm.missingAppUpdates, function(app, index) {
+                              return _c("li", { key: index }, [
+                                _c(
+                                  "a",
+                                  {
+                                    attrs: {
+                                      href:
+                                        "https://apps.nextcloud.com/apps/" +
+                                        app.appId,
+                                      title: _vm.t("settings", "View in store")
+                                    }
+                                  },
+                                  [_vm._v(_vm._s(app.appName) + " ↗")]
+                                )
+                              ])
+                            }),
+                            0
+                          )
+                        : _vm._e()
+                    ]
+                  : _vm._e(),
+                _vm._v(" "),
+                _vm.availableAppUpdates.length
+                  ? [
+                      _c(
+                        "h3",
+                        { on: { click: _vm.toggleHideAvailableUpdates } },
+                        [
+                          _vm._v(
+                            "\n\t\t\t\t\t" +
+                              _vm._s(
+                                _vm.t(
+                                  "updatenotification",
+                                  "Apps with compatible version"
+                                )
+                              ) +
+                              "\n\t\t\t\t\t"
+                          ),
+                          !_vm.hideAvailableUpdates
+                            ? _c("span", {
+                                staticClass: "icon icon-triangle-n"
+                              })
+                            : _vm._e(),
+                          _vm._v(" "),
+                          _vm.hideAvailableUpdates
+                            ? _c("span", {
+                                staticClass: "icon icon-triangle-s"
+                              })
+                            : _vm._e()
+                        ]
+                      ),
+                      _vm._v(" "),
+                      !_vm.hideAvailableUpdates
+                        ? _c(
+                            "ul",
+                            { staticClass: "applist" },
+                            _vm._l(_vm.availableAppUpdates, function(
+                              app,
+                              index
+                            ) {
+                              return _c("li", { key: index }, [
+                                _c(
+                                  "a",
+                                  {
+                                    attrs: {
+                                      href:
+                                        "https://apps.nextcloud.com/apps/" +
+                                        app.appId,
+                                      title: _vm.t("settings", "View in store")
+                                    }
+                                  },
+                                  [_vm._v(_vm._s(app.appName) + " ↗")]
+                                )
+                              ])
+                            }),
+                            0
+                          )
+                        : _vm._e()
+                    ]
+                  : _vm._e(),
+                _vm._v(" "),
+                _c("div", [
+                  _vm.updaterEnabled && _vm.webUpdaterEnabled
+                    ? _c(
+                        "a",
+                        {
+                          staticClass: "button primary",
+                          attrs: { href: "#" },
+                          on: { click: _vm.clickUpdaterButton }
+                        },
+                        [
+                          _vm._v(
+                            _vm._s(_vm.t("updatenotification", "Open updater"))
+                          )
+                        ]
+                      )
+                    : _vm._e(),
+                  _vm._v(" "),
+                  _vm.downloadLink
+                    ? _c(
+                        "a",
+                        {
+                          staticClass: "button",
+                          class: { hidden: !_vm.updaterEnabled },
+                          attrs: { href: _vm.downloadLink }
+                        },
+                        [
+                          _vm._v(
+                            _vm._s(_vm.t("updatenotification", "Download now"))
+                          )
+                        ]
+                      )
+                    : _vm._e(),
+                  _vm._v(" "),
+                  _vm.updaterEnabled && !_vm.webUpdaterEnabled
+                    ? _c("span", [
+                        _vm._v(
+                          "\n\t\t\t\t\t" +
+                            _vm._s(
+                              _vm.t(
+                                "updatenotification",
+                                "Please use the command line updater to update."
+                              )
+                            ) +
+                            "\n\t\t\t\t"
+                        )
+                      ])
+                    : _vm._e(),
+                  _vm._v(" "),
+                  _vm.whatsNew
+                    ? _c("div", { staticClass: "whatsNew" }, [
+                        _c("div", { staticClass: "toggleWhatsNew" }, [
+                          _c(
+                            "a",
+                            {
+                              directives: [
+                                {
+                                  name: "click-outside",
+                                  rawName: "v-click-outside",
+                                  value: _vm.hideMenu,
+                                  expression: "hideMenu"
+                                }
+                              ],
+                              staticClass: "button",
+                              on: { click: _vm.toggleMenu }
+                            },
+                            [
+                              _vm._v(
+                                _vm._s(
+                                  _vm.t("updatenotification", "What's new?")
+                                )
+                              )
+                            ]
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "div",
+                            {
+                              staticClass: "popovermenu",
+                              class: {
+                                "menu-center": true,
+                                open: _vm.openedWhatsNew
+                              }
+                            },
+                            [
+                              _c("PopoverMenu", {
+                                attrs: { menu: _vm.whatsNew }
+                              })
+                            ],
+                            1
+                          )
+                        ])
+                      ])
+                    : _vm._e()
+                ])
+              ]
+            : !_vm.isUpdateChecked
+            ? [
+                _vm._v(
+                  "\n\t\t\t" +
+                    _vm._s(
+                      _vm.t(
+                        "updatenotification",
+                        "The update check is not yet finished. Please refresh the page."
+                      )
+                    ) +
+                    "\n\t\t"
+                )
+              ]
+            : [
+                _vm._v(
+                  "\n\t\t\t" +
+                    _vm._s(
+                      _vm.t("updatenotification", "Your version is up to date.")
+                    ) +
+                    "\n\t\t\t"
+                ),
+                _c("span", {
+                  directives: [
+                    {
+                      name: "tooltip",
+                      rawName: "v-tooltip.auto",
+                      value: _vm.lastCheckedOnString,
+                      expression: "lastCheckedOnString",
+                      modifiers: { auto: true }
+                    }
+                  ],
+                  staticClass: "icon-info svg"
+                })
+              ],
+          _vm._v(" "),
+          !_vm.isDefaultUpdateServerURL
+            ? [
+                _c("p", { staticClass: "topMargin" }, [
+                  _c("em", [
+                    _vm._v(
+                      _vm._s(
+                        _vm.t(
+                          "updatenotification",
+                          "A non-default update server is in use to be checked for updates:"
+                        )
+                      ) + " "
+                    ),
+                    _c("code", [_vm._v(_vm._s(_vm.updateServerURL))])
+                  ])
+                ])
+              ]
+            : _vm._e()
+        ],
+        2
+      ),
+      _vm._v(" "),
+      _c("h3", { staticClass: "update-channel-selector" }, [
+        _vm._v(
+          "\n\t\t" +
+            _vm._s(_vm.t("updatenotification", "Update channel:")) +
+            "\n\t\t"
+        ),
+        _c(
+          "div",
+          {
+            directives: [
+              {
+                name: "click-outside",
+                rawName: "v-click-outside",
+                value: _vm.closeUpdateChannelMenu,
+                expression: "closeUpdateChannelMenu"
+              }
+            ],
+            staticClass: "update-menu"
+          },
+          [
+            _c(
+              "span",
+              {
+                staticClass: "icon-update-menu",
+                on: { click: _vm.toggleUpdateChannelMenu }
+              },
+              [
+                _vm._v(
+                  "\n\t\t\t\t" + _vm._s(_vm.localizedChannelName) + "\n\t\t\t\t"
+                ),
+                _c("span", { staticClass: "icon-triangle-s" })
+              ]
+            ),
+            _vm._v(" "),
+            _c(
+              "div",
+              {
+                staticClass: "popovermenu menu menu-center",
+                class: { "show-menu": _vm.openedUpdateChannelMenu }
+              },
+              [_c("PopoverMenu", { attrs: { menu: _vm.channelList } })],
+              1
+            )
+          ]
+        )
+      ]),
+      _vm._v(" "),
+      _c("span", { staticClass: "msg", attrs: { id: "channel_save_msg" } }),
+      _c("br"),
+      _vm._v(" "),
+      _c("p", [
+        _c("em", [
+          _vm._v(
+            _vm._s(
+              _vm.t(
+                "updatenotification",
+                "You can always update to a newer version. But you can never downgrade to a more stable version."
+              )
+            )
+          )
+        ]),
+        _c("br"),
+        _vm._v(" "),
+        _c("em", {
+          domProps: { innerHTML: _vm._s(_vm.noteDelayedStableString) }
+        })
+      ]),
+      _vm._v(" "),
+      _c(
+        "p",
+        { attrs: { id: "oca_updatenotification_groups" } },
+        [
+          _vm._v(
+            "\n\t\t" +
+              _vm._s(
+                _vm.t(
+                  "updatenotification",
+                  "Notify members of the following groups about available updates:"
+                )
+              ) +
+              "\n\t\t"
+          ),
+          _c("Multiselect", {
+            attrs: {
+              options: _vm.availableGroups,
+              multiple: true,
+              label: "label",
+              "track-by": "value",
+              "tag-width": 75
+            },
+            model: {
+              value: _vm.notifyGroups,
+              callback: function($$v) {
+                _vm.notifyGroups = $$v
+              },
+              expression: "notifyGroups"
+            }
+          }),
+          _c("br"),
+          _vm._v(" "),
+          _vm.currentChannel === "daily" || _vm.currentChannel === "git"
+            ? _c("em", [
+                _vm._v(
+                  _vm._s(
+                    _vm.t(
+                      "updatenotification",
+                      "Only notifications for app updates are available."
+                    )
+                  )
+                )
+              ])
+            : _vm._e(),
+          _vm._v(" "),
+          _vm.currentChannel === "daily"
+            ? _c("em", [
+                _vm._v(
+                  _vm._s(
+                    _vm.t(
+                      "updatenotification",
+                      "The selected update channel makes dedicated notifications for the server obsolete."
+                    )
+                  )
+                )
+              ])
+            : _vm._e(),
+          _vm._v(" "),
+          _vm.currentChannel === "git"
+            ? _c("em", [
+                _vm._v(
+                  _vm._s(
+                    _vm.t(
+                      "updatenotification",
+                      "The selected update channel does not support updates of the server."
+                    )
+                  )
+                )
+              ])
+            : _vm._e()
+        ],
+        1
+      )
+    ]
+  )
+}
+var staticRenderFns = []
+render._withStripped = true
+
+
+
+/***/ })
+
+/******/ 	});
+/************************************************************************/
+/******/ 	// The module cache
+/******/ 	var __webpack_module_cache__ = {};
+/******/ 	
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/ 		// Check if module is in cache
+/******/ 		var cachedModule = __webpack_module_cache__[moduleId];
+/******/ 		if (cachedModule !== undefined) {
+/******/ 			return cachedModule.exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = __webpack_module_cache__[moduleId] = {
+/******/ 			id: moduleId,
+/******/ 			loaded: false,
+/******/ 			exports: {}
+/******/ 		};
+/******/ 	
+/******/ 		// Execute the module function
+/******/ 		__webpack_modules__[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/ 	
+/******/ 		// Flag the module as loaded
+/******/ 		module.loaded = true;
+/******/ 	
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/ 	
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = __webpack_modules__;
+/******/ 	
+/************************************************************************/
+/******/ 	/* webpack/runtime/amd define */
+/******/ 	(() => {
+/******/ 		__webpack_require__.amdD = function () {
+/******/ 			throw new Error('define cannot be used indirect');
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/amd options */
+/******/ 	(() => {
+/******/ 		__webpack_require__.amdO = {};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/chunk loaded */
+/******/ 	(() => {
+/******/ 		var deferred = [];
+/******/ 		__webpack_require__.O = (result, chunkIds, fn, priority) => {
+/******/ 			if(chunkIds) {
+/******/ 				priority = priority || 0;
+/******/ 				for(var i = deferred.length; i > 0 && deferred[i - 1][2] > priority; i--) deferred[i] = deferred[i - 1];
+/******/ 				deferred[i] = [chunkIds, fn, priority];
+/******/ 				return;
+/******/ 			}
+/******/ 			var notFulfilled = Infinity;
+/******/ 			for (var i = 0; i < deferred.length; i++) {
+/******/ 				var chunkIds = deferred[i][0];
+/******/ 				var fn = deferred[i][1];
+/******/ 				var priority = deferred[i][2];
+/******/ 				var fulfilled = true;
+/******/ 				for (var j = 0; j < chunkIds.length; j++) {
+/******/ 					if ((priority & 1 === 0 || notFulfilled >= priority) && Object.keys(__webpack_require__.O).every((key) => (__webpack_require__.O[key](chunkIds[j])))) {
+/******/ 						chunkIds.splice(j--, 1);
+/******/ 					} else {
+/******/ 						fulfilled = false;
+/******/ 						if(priority < notFulfilled) notFulfilled = priority;
+/******/ 					}
+/******/ 				}
+/******/ 				if(fulfilled) {
+/******/ 					deferred.splice(i--, 1)
+/******/ 					var r = fn();
+/******/ 					if (r !== undefined) result = r;
+/******/ 				}
+/******/ 			}
+/******/ 			return result;
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/compat get default export */
+/******/ 	(() => {
+/******/ 		// getDefaultExport function for compatibility with non-harmony modules
+/******/ 		__webpack_require__.n = (module) => {
+/******/ 			var getter = module && module.__esModule ?
+/******/ 				() => (module['default']) :
+/******/ 				() => (module);
+/******/ 			__webpack_require__.d(getter, { a: getter });
+/******/ 			return getter;
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/define property getters */
+/******/ 	(() => {
+/******/ 		// define getter functions for harmony exports
+/******/ 		__webpack_require__.d = (exports, definition) => {
+/******/ 			for(var key in definition) {
+/******/ 				if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
+/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 				}
+/******/ 			}
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/global */
+/******/ 	(() => {
+/******/ 		__webpack_require__.g = (function() {
+/******/ 			if (typeof globalThis === 'object') return globalThis;
+/******/ 			try {
+/******/ 				return this || new Function('return this')();
+/******/ 			} catch (e) {
+/******/ 				if (typeof window === 'object') return window;
+/******/ 			}
+/******/ 		})();
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
+/******/ 	(() => {
+/******/ 		__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/make namespace object */
+/******/ 	(() => {
+/******/ 		// define __esModule on exports
+/******/ 		__webpack_require__.r = (exports) => {
+/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 			}
+/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/node module decorator */
+/******/ 	(() => {
+/******/ 		__webpack_require__.nmd = (module) => {
+/******/ 			module.paths = [];
+/******/ 			if (!module.children) module.children = [];
+/******/ 			return module;
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/jsonp chunk loading */
+/******/ 	(() => {
+/******/ 		// no baseURI
+/******/ 		
+/******/ 		// object to store loaded and loading chunks
+/******/ 		// undefined = chunk not loaded, null = chunk preloaded/prefetched
+/******/ 		// [resolve, reject, Promise] = chunk loading, 0 = chunk loaded
+/******/ 		var installedChunks = {
+/******/ 			"updatenotification-updatenotification": 0
+/******/ 		};
+/******/ 		
+/******/ 		// no chunk on demand loading
+/******/ 		
+/******/ 		// no prefetching
+/******/ 		
+/******/ 		// no preloaded
+/******/ 		
+/******/ 		// no HMR
+/******/ 		
+/******/ 		// no HMR manifest
+/******/ 		
+/******/ 		__webpack_require__.O.j = (chunkId) => (installedChunks[chunkId] === 0);
+/******/ 		
+/******/ 		// install a JSONP callback for chunk loading
+/******/ 		var webpackJsonpCallback = (parentChunkLoadingFunction, data) => {
+/******/ 			var chunkIds = data[0];
+/******/ 			var moreModules = data[1];
+/******/ 			var runtime = data[2];
+/******/ 			// add "moreModules" to the modules object,
+/******/ 			// then flag all "chunkIds" as loaded and fire callback
+/******/ 			var moduleId, chunkId, i = 0;
+/******/ 			if(chunkIds.some((id) => (installedChunks[id] !== 0))) {
+/******/ 				for(moduleId in moreModules) {
+/******/ 					if(__webpack_require__.o(moreModules, moduleId)) {
+/******/ 						__webpack_require__.m[moduleId] = moreModules[moduleId];
+/******/ 					}
+/******/ 				}
+/******/ 				if(runtime) var result = runtime(__webpack_require__);
+/******/ 			}
+/******/ 			if(parentChunkLoadingFunction) parentChunkLoadingFunction(data);
+/******/ 			for(;i < chunkIds.length; i++) {
+/******/ 				chunkId = chunkIds[i];
+/******/ 				if(__webpack_require__.o(installedChunks, chunkId) && installedChunks[chunkId]) {
+/******/ 					installedChunks[chunkId][0]();
+/******/ 				}
+/******/ 				installedChunks[chunkIds[i]] = 0;
+/******/ 			}
+/******/ 			return __webpack_require__.O(result);
+/******/ 		}
+/******/ 		
+/******/ 		var chunkLoadingGlobal = self["webpackChunknextcloud"] = self["webpackChunknextcloud"] || [];
+/******/ 		chunkLoadingGlobal.forEach(webpackJsonpCallback.bind(null, 0));
+/******/ 		chunkLoadingGlobal.push = webpackJsonpCallback.bind(null, chunkLoadingGlobal.push.bind(chunkLoadingGlobal));
+/******/ 	})();
+/******/ 	
+/************************************************************************/
+/******/ 	
+/******/ 	// startup
+/******/ 	// Load entry module and return exports
+/******/ 	// This entry module depends on other loaded chunks and execution need to be delayed
+/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, ["core-common"], () => (__webpack_require__("./apps/updatenotification/src/init.js")))
+/******/ 	__webpack_exports__ = __webpack_require__.O(__webpack_exports__);
+/******/ 	
+/******/ })()
+;
+//# sourceMappingURL=updatenotification-updatenotification.js.map?v=f83a6bda4443450c2e35
